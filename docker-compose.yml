@@ -1,0 +1,17 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:15
+    container_name: estafeta_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: strapi_user
+      POSTGRES_PASSWORD: strapi_password
+      POSTGRES_DB: strapi_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

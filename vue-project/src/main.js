@@ -1,12 +1,19 @@
-import './assets/main.css'
+// 1. IMPORTAR O BOOTSTRAP (Isto é o que vai dar o design ao site!)
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
+import './assets/custom.scss'
+import 'bootstrap-icons/font/bootstrap-icons.css'
+
+// (Se tinhas aqui um import './assets/main.css', nós apagámos para não estragar o design)
 
 import { createApp } from 'vue'
 import App from './App.vue'
+import router from './router'
+import { registerSW } from 'virtual:pwa-register'
 
-// Importar o CSS do Bootstrap (Fato de gala)
-import 'bootstrap/dist/css/bootstrap.min.css'
+const app = createApp(App)
 
-// Importar o JS do Bootstrap (Interatividade)
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'
+app.use(router)
+app.mount('#app')
 
-createApp(App).mount('#app')
+registerSW({ immediate: true })

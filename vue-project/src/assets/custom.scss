@@ -1,0 +1,7 @@
+// 1. Define as tuas cores personalizadas
+$primary: #2D3E1F; // Agora todos os btn-primary e text-primary do site ficam com esta cor!
+$secondary: #F5EBE0;
+$dark: #1a1a1a;
+
+// 2. Importa o motor do Bootstrap para ele ler as tuas cores
+@import "bootstrap/scss/bootstrap";
