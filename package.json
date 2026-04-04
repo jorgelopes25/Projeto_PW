@@ -1,0 +1,27 @@
+{
+  "name": "projeto_pw",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "db": "docker start estafeta_db",
+    "front": "cd vue-project && npm run dev",
+    "back": "cd backend && npm run develop",
+    "dev": "npm run db && concurrently -c \"cyan,magenta\" -n \"VUE,STRAPI\" \"npm run front\" \"npm run back\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jorgelopes25/Projeto_PW.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jorgelopes25/Projeto_PW/issues"
+  },
+  "homepage": "https://github.com/jorgelopes25/Projeto_PW#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

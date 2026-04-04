@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "delivery_products",
+  "info": {
+    "singularName": "delivery-product",
+    "pluralName": "delivery-products",
+    "displayName": "delivery_product"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "quantity": {
+      "type": "integer"
+    },
+    "delivery": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::delivery.delivery",
+      "inversedBy": "delivery_products"
+    },
+    "product": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::product.product",
+      "inversedBy": "delivery_products"
+    }
+  }
+}

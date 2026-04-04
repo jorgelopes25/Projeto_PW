@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "couriers",
+  "info": {
+    "singularName": "courier",
+    "pluralName": "couriers",
+    "displayName": "Courier"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "vehicle": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "biginteger"
+    },
+    "zone": {
+      "type": "string"
+    },
+    "online": {
+      "type": "boolean"
+    },
+    "rating": {
+      "type": "decimal"
+    },
+    "total_deliveries": {
+      "type": "integer"
+    },
+    "deliveries": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::delivery.delivery",
+      "mappedBy": "courier"
+    }
+  }
+}

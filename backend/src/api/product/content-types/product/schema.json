@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "products",
+  "info": {
+    "singularName": "product",
+    "pluralName": "products",
+    "displayName": "product"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "size": {
+      "type": "string"
+    },
+    "EAN": {
+      "type": "blocks"
+    },
+    "price": {
+      "type": "decimal"
+    },
+    "type": {
+      "type": "string"
+    },
+    "brand": {
+      "type": "string"
+    },
+    "style": {
+      "type": "string"
+    },
+    "delivery_products": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::delivery-product.delivery-product",
+      "mappedBy": "product"
+    },
+    "store": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::store.store",
+      "inversedBy": "products"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "delivery_trackings",
+  "info": {
+    "singularName": "delivery-tracking",
+    "pluralName": "delivery-trackings",
+    "displayName": "delivery_tracking"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "latitude": {
+      "type": "string"
+    },
+    "longitude": {
+      "type": "string"
+    },
+    "actual_time": {
+      "type": "datetime"
+    },
+    "delivery_tracking": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::delivery-tracking.delivery-tracking",
+      "inversedBy": "delivery_trackings"
+    },
+    "delivery_trackings": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::delivery-tracking.delivery-tracking",
+      "mappedBy": "delivery_tracking"
+    }
+  }
+}
