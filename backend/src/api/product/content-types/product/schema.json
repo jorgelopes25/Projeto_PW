@@ -4,7 +4,7 @@
   "info": {
     "singularName": "product",
     "pluralName": "products",
-    "displayName": "product"
+    "displayName": "Product"
   },
   "options": {
     "draftAndPublish": true
@@ -18,7 +18,7 @@
       "type": "string"
     },
     "EAN": {
-      "type": "blocks"
+      "type": "string"
     },
     "price": {
       "type": "decimal"

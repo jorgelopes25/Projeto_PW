@@ -107,6 +107,43 @@ export interface AdminApiTokenPermission extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface AdminAuditLog extends Struct.CollectionTypeSchema {
+  collectionName: 'strapi_audit_logs';
+  info: {
+    displayName: 'Audit Log';
+    pluralName: 'audit-logs';
+    singularName: 'audit-log';
+  };
+  options: {
+    draftAndPublish: false;
+    timestamps: false;
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+  };
+  attributes: {
+    action: Schema.Attribute.String & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    date: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'admin::audit-log'> &
+      Schema.Attribute.Private;
+    payload: Schema.Attribute.JSON;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    user: Schema.Attribute.Relation<'oneToOne', 'admin::user'>;
+  };
+}
+
 export interface AdminPermission extends Struct.CollectionTypeSchema {
   collectionName: 'admin_permissions';
   info: {
@@ -456,7 +493,7 @@ export interface ApiClientClient extends Struct.CollectionTypeSchema {
       'api::client.client'
     > &
       Schema.Attribute.Private;
-    Name: Schema.Attribute.String;
+    name: Schema.Attribute.String;
     NIF: Schema.Attribute.BigInteger;
     phone: Schema.Attribute.BigInteger;
     publishedAt: Schema.Attribute.DateTime;
@@ -552,14 +589,7 @@ export interface ApiDeliveryTrackingDeliveryTracking
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    delivery_tracking: Schema.Attribute.Relation<
-      'manyToOne',
-      'api::delivery-tracking.delivery-tracking'
-    >;
-    delivery_trackings: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::delivery-tracking.delivery-tracking'
-    >;
+    delivery: Schema.Attribute.Relation<'manyToOne', 'api::delivery.delivery'>;
     latitude: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -597,6 +627,10 @@ export interface ApiDeliveryDelivery extends Struct.CollectionTypeSchema {
       'api::delivery-product.delivery-product'
     >;
     delivery_status: Schema.Attribute.String;
+    delivery_trackings: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::delivery-tracking.delivery-tracking'
+    >;
     extId: Schema.Attribute.String;
     forecast_date: Schema.Attribute.DateTime;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
@@ -606,8 +640,7 @@ export interface ApiDeliveryDelivery extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
-    start_date: Schema.Attribute.DateTime;
-    totall: Schema.Attribute.Decimal;
+    total: Schema.Attribute.Decimal;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -617,7 +650,7 @@ export interface ApiDeliveryDelivery extends Struct.CollectionTypeSchema {
 export interface ApiProductProduct extends Struct.CollectionTypeSchema {
   collectionName: 'products';
   info: {
-    displayName: 'product';
+    displayName: 'Product';
     pluralName: 'products';
     singularName: 'product';
   };
@@ -633,7 +666,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::delivery-product.delivery-product'
     >;
-    EAN: Schema.Attribute.Blocks;
+    EAN: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -1187,6 +1220,7 @@ declare module '@strapi/strapi' {
     export interface ContentTypeSchemas {
       'admin::api-token': AdminApiToken;
       'admin::api-token-permission': AdminApiTokenPermission;
+      'admin::audit-log': AdminAuditLog;
       'admin::permission': AdminPermission;
       'admin::role': AdminRole;
       'admin::session': AdminSession;

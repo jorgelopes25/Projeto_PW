@@ -20,17 +20,11 @@
     "actual_time": {
       "type": "datetime"
     },
-    "delivery_tracking": {
+    "delivery": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "api::delivery-tracking.delivery-tracking",
+      "target": "api::delivery.delivery",
       "inversedBy": "delivery_trackings"
-    },
-    "delivery_trackings": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::delivery-tracking.delivery-tracking",
-      "mappedBy": "delivery_tracking"
     }
   }
 }

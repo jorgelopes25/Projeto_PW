@@ -14,10 +14,10 @@
     "name": {
       "type": "string"
     },
-    "address": {
+    "email": {
       "type": "string"
     },
-    "email": {
+    "address": {
       "type": "string"
     },
     "phone": {

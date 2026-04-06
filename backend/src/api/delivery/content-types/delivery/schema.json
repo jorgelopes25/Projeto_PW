@@ -14,14 +14,11 @@
     "extId": {
       "type": "string"
     },
-    "totall": {
+    "total": {
       "type": "decimal"
     },
     "delivery_address": {
       "type": "string"
-    },
-    "start_date": {
-      "type": "datetime"
     },
     "forecast_date": {
       "type": "datetime"
@@ -29,23 +26,29 @@
     "delivery_status": {
       "type": "string"
     },
+    "delivery_products": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::delivery-product.delivery-product",
+      "mappedBy": "delivery"
+    },
     "courier": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::courier.courier",
       "inversedBy": "deliveries"
     },
+    "delivery_trackings": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::delivery-tracking.delivery-tracking",
+      "mappedBy": "delivery"
+    },
     "client": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::client.client",
       "inversedBy": "deliveries"
-    },
-    "delivery_products": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::delivery-product.delivery-product",
-      "mappedBy": "delivery"
     }
   }
 }
