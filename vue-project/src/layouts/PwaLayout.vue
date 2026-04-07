@@ -7,6 +7,7 @@
     <nav class="fixed-bottom bg-white border-top d-flex justify-content-around py-2">
       <router-link to="/estafeta" class="btn btn-sm btn-outline-primary border-0">Entregas</router-link>
       <router-link to="/estafeta/ler-qr" class="btn btn-sm btn-outline-primary border-0">Ler QR</router-link>
+      <router-link to="/estafeta/login" class="btn btn-sm btn-outline-primary border-0">Login</router-link>
     </nav>
   </div>
   <bottom-bar />

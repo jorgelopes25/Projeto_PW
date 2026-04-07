@@ -4,45 +4,56 @@ import { ref, onMounted } from 'vue'
 const abaAtiva = ref('pendente')
 const userName = 'Jorge'
 
-// 1. Atualizámos os dados para bater certo com a informação rica do Mockup
-const todasAsEntregas = [
-  { 
-    id: '22343655', 
-    estado: 'concluida', 
-    origem: 'R. Cidade de Aveiro 6a', 
-    destino: 'Rua Dr. Bento Caeiro 5',
-    prioridade: '1-Normal'
-  },
-  { 
-    id: '22343656', 
-    estado: 'concluida', 
-    origem: 'R. Cidade de Aveiro 6a', 
-    destino: 'Rua Dr. Bento Caeiro 5',
-    prioridade: '3-Médio'
-  },
-  { 
-    id: '22343657', 
-    estado: 'pendente', 
-    origem: 'R. Cidade de Aveiro 6a', 
-    destino: 'Rua Dr. Bento Caeiro 5',
-    prioridade: '1-Normal'
-  }
-]
-
+// Começa como um array vazio, à espera dos dados reais da BD
+const todasAsEntregas = ref([])
 const entregasVisiveis = ref([])
+const carregando = ref(true) // Novo estado para mostrar feedback visual
 
+// Função que filtra as entregas baseadas na aba clicada
 const mudarAba = (estadoDesejado) => {
   abaAtiva.value = estadoDesejado
-  entregasVisiveis.value = todasAsEntregas.filter(entrega => entrega.estado == estadoDesejado)
+  entregasVisiveis.value = todasAsEntregas.value.filter(entrega => entrega.estado === estadoDesejado)
 }
 
-// Corrigi aqui: Estava 'pendentes' (com s), mas o estado correto é 'pendente'
+// A MÁGICA DE INTEGRAÇÃO COM O STRAPI
+const carregarEntregas = async () => {
+  carregando.value = true
+  try {
+    // O fetch vai buscar os dados à API do Strapi
+    // O ?populate=* diz ao Strapi para trazer também os dados das relações (ex: Cliente)
+    const resposta = await fetch('http://localhost:1337/api/deliveries?populate=*')
+    const json = await resposta.json()
+
+    // O Strapi v5 devolve os dados dentro de um array chamado 'data'
+    if (json && json.data) {
+      todasAsEntregas.value = json.data.map(item => {
+        return {
+          // Mapeamos os campos da tua base de dados para o que o template espera
+          id: item.extId , 
+          estado: item.status ? item.status.toLowerCase() : 'pendente',
+          origem: 'Armazém Central', // O diagrama ER mostra a Store ligada ao Product, complexo para já. Mantemos estático.
+          destino: item.delivery_address || 'Morada não definida',
+          prioridade: '1-Normal' // O teu ER não tem prioridade, mantemos um valor por defeito
+        }
+      })
+      
+      // Força a atualização da lista visível após carregar os dados
+      mudarAba(abaAtiva.value)
+    }
+  } catch (erro) {
+    console.error("Erro ao comunicar com o Strapi:", erro)
+    alert("Falha ao carregar entregas. O servidor Strapi está ligado?")
+  } finally {
+    carregando.value = false
+  }
+}
+
+// Quando a página é construída, chama a API
 onMounted(() => {
-  mudarAba('pendente')
+  carregarEntregas()
 })
 
 const abrirDetalhes = (id) => {
-  // Vamos usar isto no próximo passo para ir para o mapa!
   alert('A abrir entrega: Nº ' + id)
 }
 </script>
@@ -84,7 +95,7 @@ const abrirDetalhes = (id) => {
         <div class="card-body p-4">
           
           <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-bold m-0 fs-6">Nº {{ entrega.id }}</h5>
+            <h5 class="text-truncate fw-bold m-0 fs-6">Nº {{ entrega.id }}</h5>
             
             <span 
               class="badge rounded-pill px-3 py-2 fs-7" 
