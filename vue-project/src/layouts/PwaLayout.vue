@@ -6,6 +6,7 @@
   <div v-else class="pwa-layout bg-secondary" style="min-height: 100vh; padding-bottom: 70px;">
     
     <main class="container py-4">
+  
       <router-view></router-view>
     </main>
     <bottom-bar />
