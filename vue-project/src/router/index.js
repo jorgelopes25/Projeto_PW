@@ -10,6 +10,7 @@ import Home from '../views/FrontOffice/Home.vue'
 import Dashboard from '../views/BackOffice/Dashboard.vue'
 import ListaEntregas from '../views/PWA/ListaEntregas.vue'
 import LeitorQR from '../views/PWA/LerQr.vue'
+import Login from '../views/PWA/Login.vue'
 
 const routes = [
   {
@@ -37,6 +38,7 @@ const routes = [
     children: [
       { path: '', name: 'ListaEntregas', component: ListaEntregas },
       { path: 'ler-qr', name: 'LeitorQR', component: LeitorQR },
+      { path: 'login', name: 'Login', component: Login },
       // Podes colocar aqui a página com o leitor QR e a assinatura
     ]
   }
