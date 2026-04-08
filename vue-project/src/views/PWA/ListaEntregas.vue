@@ -1,56 +1,54 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from 'axios' 
 
 const abaAtiva = ref('pendente')
-const userName = 'Jorge'
 
-// Começa como um array vazio, à espera dos dados reais da BD
+// Variáveis de estado
 const todasAsEntregas = ref([])
 const entregasVisiveis = ref([])
-const carregando = ref(true) // Novo estado para mostrar feedback visual
+const carregando = ref(true)
 
-// Função que filtra as entregas baseadas na aba clicada
+// Filtra as entregas baseadas na aba clicada
 const mudarAba = (estadoDesejado) => {
   abaAtiva.value = estadoDesejado
   entregasVisiveis.value = todasAsEntregas.value.filter(entrega => entrega.estado === estadoDesejado)
 }
 
-// A MÁGICA DE INTEGRAÇÃO COM O STRAPI
+// Busca dados no Strapi
 const carregarEntregas = async () => {
   carregando.value = true
   try {
-    // O fetch vai buscar os dados à API do Strapi
-    // O ?populate=* diz ao Strapi para trazer também os dados das relações (ex: Cliente)
-    const resposta = await fetch('http://localhost:1337/api/deliveries?populate=*')
-    const json = await resposta.json()
+    const resposta = await axios.get('http://localhost:1337/api/deliveries?populate=*')
+    
+    // Pequeno atraso artificial para testarmos o efeito visual (REMOVER EM PRODUÇÃO)
+    await new Promise(resolve => setTimeout(resolve, 1500))
 
-    // O Strapi v5 devolve os dados dentro de um array chamado 'data'
-    if (json && json.data) {
-      todasAsEntregas.value = json.data.map(item => {
+    if (resposta.data && resposta.data.data) {
+      todasAsEntregas.value = resposta.data.data.map(item => {
+        const attr = item.attributes || item 
         return {
-          // Mapeamos os campos da tua base de dados para o que o template espera
-          id: item.extId , 
-          estado: item.status ? item.status.toLowerCase() : 'pendente',
-          origem: 'Armazém Central', // O diagrama ER mostra a Store ligada ao Product, complexo para já. Mantemos estático.
-          destino: item.delivery_address || 'Morada não definida',
-          prioridade: '1-Normal' // O teu ER não tem prioridade, mantemos um valor por defeito
+          id: attr.extId , 
+          estado: attr.status ? attr.status.toLowerCase() : 'pendente',
+          origem: 'Armazém Central',
+          destino: attr.delivery_address || 'Morada não definida',
+          prioridade: '1-Normal'
         }
       })
       
-      // Força a atualização da lista visível após carregar os dados
+      // Filtra os dados reais imediatamente
       mudarAba(abaAtiva.value)
     }
   } catch (erro) {
     console.error("Erro ao comunicar com o Strapi:", erro)
-    alert("Falha ao carregar entregas. O servidor Strapi está ligado?")
   } finally {
     carregando.value = false
   }
 }
 
-// Quando a página é construída, chama a API
-onMounted(() => {
-  carregarEntregas()
+// Ciclo de vida: onMounted
+onMounted(async () => {
+  await carregarEntregas()
 })
 
 const abrirDetalhes = (id) => {
@@ -60,7 +58,6 @@ const abrirDetalhes = (id) => {
 
 <template>
   <div class="container-fluid py-4 mt-4">
-
     <h2 class="h5 fw-bold mb-4 text-uppercase">As Minhas Entregas</h2>
 
     <div class="d-flex gap-3 mb-4">
@@ -68,120 +65,112 @@ const abrirDetalhes = (id) => {
         class="btn flex-fill rounded-pill shadow-sm fw-bold py-2 custom-tab"
         :class="abaAtiva === 'pendente' ? 'tab-ativa' : 'tab-inativa'"
         @click="mudarAba('pendente')"
-      >
-        PENDENTES
-      </button>
-      
+      >PENDENTES</button>
       <button
         class="btn flex-fill rounded-pill shadow-sm fw-bold py-2 custom-tab"
         :class="abaAtiva === 'concluida' ? 'tab-ativa' : 'tab-inativa'"
         @click="mudarAba('concluida')"
-      >
-        CONCLUÍDAS
-      </button>
+      >CONCLUÍDAS</button>
     </div>
 
-    <div class="lista-encomendas pb-5">
+    <div class="lista-encomendas pb-5 position-relative">
       
-      <div v-if="entregasVisiveis.length === 0" class="text-center text-muted mt-5">
-        <p>Não há entregas nesta lista.</p>
+      <div v-if="carregando" class="skeleton-overlay">
+        <div v-for="i in 3" :key="i" class="card card-entrega mb-4 skeleton-card shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <div class="skeleton-item rounded" style="width: 40%; height: 20px;"></div>
+              <div class="skeleton-item rounded-pill" style="width: 25%; height: 30px;"></div>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+              <div class="skeleton-item rounded-pill" style="width: 35%; height: 40px;"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div 
-        v-for="entrega in entregasVisiveis" 
-        :key="entrega.id" 
-        class="card card-entrega mb-4 shadow-sm"
-      >
-        <div class="card-body p-4">
-          
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="text-truncate fw-bold m-0 fs-6">Nº {{ entrega.id }}</h5>
-            
-            <span 
-              class="badge rounded-pill px-3 py-2 fs-7" 
-              :class="entrega.prioridade.includes('1') ? 'badge-normal' : 'badge-medio'"
-            >
-              {{ entrega.prioridade }}
-            </span>
-          </div>
-          
-          <div class="d-flex align-items-center fw-bold mb-4 fs-7 text-dark">
-            <span class="text-truncate">{{ entrega.origem }}</span>
-            <i class="bi bi-arrow-right mx-2 fs-5"></i>
-            <span class="text-truncate">{{ entrega.destino }}</span>
-          </div>
-          
-          <div class="d-flex align-items-center justify-content-end">
-            <button 
-              class="btn rounded-pill px-4 py-2 fw-bold text-white btn-acao"
-              @click="abrirDetalhes(entrega.id)"
-            >
-              {{ entrega.estado === 'pendente' ? 'Recolher' : 'Concluída' }}
-            </button>
-          </div>
+      <div v-else class="fade-in">
+        <div v-if="entregasVisiveis.length === 0" class="text-center text-muted mt-5 py-5">
+          <p class="fs-4">📭</p>
+          <p>Não há entregas nesta lista.</p>
+        </div>
 
+        <div 
+          v-for="entrega in entregasVisiveis" 
+          :key="entrega.id" 
+          class="card card-entrega mb-4 shadow-sm"
+        >
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h5 class="text-truncate fw-bold m-0 fs-6">Nº {{ entrega.id }}</h5>
+              <span class="badge rounded-pill px-3 py-2 fs-7 badge-normal">
+                {{ entrega.prioridade }}
+              </span>
+            </div>
+            
+            <div class="d-flex align-items-center fw-bold mb-4 fs-7 text-dark">
+              <span class="text-truncate">{{ entrega.origem }}</span>
+              <i class="bi bi-arrow-right mx-2 fs-5"></i>
+              <span class="text-truncate">{{ entrega.destino }}</span>
+            </div>
+            
+            <div class="d-flex align-items-center justify-content-end">
+              <button class="btn rounded-pill px-4 py-2 fw-bold text-white btn-acao" @click="abrirDetalhes(entrega.id)">
+                {{ entrega.estado === 'pendente' ? 'Recolher' : 'Concluída' }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <style scoped>
 /* --- ESTILOS DAS TABS --- */
-.custom-tab {
-  font-size: 0.9rem;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
+.custom-tab { font-size: 0.9rem; letter-spacing: 0.5px; transition: all 0.3s ease; }
+.tab-ativa { background-color: var(--bs-primary); color: #ffffff; border: 1px solid var(--bs-primary); }
+.tab-inativa { background-color: transparent; color: #1a1a1a; border: 1px solid #c2baba; }
+
+/* --- ESTILOS DO CARTÃO REAIS --- */
+.card-entrega { background-color: #F6F3EE; border: 1px solid #DCD7D0; border-radius: 16px; }
+.badge-normal { background-color: #6C7A68; color: white; }
+.btn-acao { background-color: var(--bs-primary); border: none; font-size: 0.9rem; }
+.btn-acao:active { transform: scale(0.95); }
+.fs-7 { font-size: 0.85rem; }
+
+/* --- NOVO: ESTILOS DO SKELETON & BLUR --- */
+
+/* Bloco genérico cinzento */
+.skeleton-item {
+  background-color: #DCD7D0; /* Um cinza que combina com o teu rebordo bege */
 }
 
-.tab-ativa {
-  background-color: var(--bs-primary); /* O teu verde escuro */
-  color: #ffffff;
-  border: 1px solid var(--bs-primary);
+/* O Cartão Skeleton, aplicando o Blur */
+.skeleton-card {
+  filter: blur(1px); /* Desfoca os blocos cinzentos */
+  background-color: #EAE6DF; /* Um tom ligeiramente mais escuro para o cartão falso */
 }
 
-.tab-inativa {
-  background-color: transparent;
-  color: #1a1a1a;
-  border: 1px solid #c2baba; /* Um rebordo cinza suave */
+/* Animação suave para quando os dados reais aparecem */
+.fade-in {
+  animation: fadeInEffect 0.5s ease-in;
 }
 
-/* --- ESTILOS DO CARTÃO --- */
-.card-entrega {
-  background-color: #F6F3EE; /* O tom bege clarinho do fundo do cartão */
-  border: 1px solid #DCD7D0;
-  border-radius: 16px; /* Cantos bem arredondados */
+@keyframes fadeInEffect {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- BADGES (Etiquetas de prioridade) --- */
-.badge-normal {
-  background-color: #6C7A68; /* Um verde um pouco mais claro que o primary */
-  color: white;
+/* Adicionámos uma animação de "pulsação" nos blocos para ficar mais dinâmico */
+.skeleton-item {
+  animation: skeleton-pulsate 1.5s infinite ease-in-out;
 }
 
-.badge-medio {
-  background-color: #C69451; /* O tom de laranja/dourado do mockup */
-  color: white;
-}
-
-/* --- BOTÃO DE AÇÃO NO CARTÃO --- */
-.btn-acao {
-  background-color: var(--bs-primary);
-  border: none;
-  font-size: 0.9rem;
-}
-
-.btn-acao:active {
-  transform: scale(0.95);
-}
-
-/* Utilitário para texto ligeiramente mais pequeno */
-.fs-7 {
-  font-size: 0.85rem;
-}
-
-.button:active {
-  transform: scale(0.90);
+@keyframes skeleton-pulsate {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
 }
 </style>
