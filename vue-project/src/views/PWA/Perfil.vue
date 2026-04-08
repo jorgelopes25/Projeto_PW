@@ -42,9 +42,9 @@
          <i class="bi bi-chevron-right"></i>
         </button>
 
-        <button class="menu-item" type="button">
-          <span>Definições da Conta</span>
-          <i class="bi bi-chevron-right"></i>
+        <button class="menu-item" type="button" @click="$router.push('/estafeta/definicoes')">
+         <span>Definições da Conta</span>
+         <i class="bi bi-chevron-right"></i>
         </button>
 
         <button class="menu-item" type="button">
